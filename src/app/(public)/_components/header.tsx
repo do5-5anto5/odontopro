@@ -10,7 +10,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import { Menu } from "lucide-react";
+import { LogIn, Menu } from "lucide-react";
 import Link from "next/link";
 
 export default function Header() {
@@ -18,18 +18,33 @@ export default function Header() {
 
   const navItems = [{ href: "#profissionais", label: "Profissionais" }];
 
+  const session = null;
+
   const NavLinks = () => (
     <>
       {navItems.map((item) => (
         <Button
           key={item.href}
           asChild
-          className="bg-transparent hover:bg-transparent text-black shadow-none"
+          className="bg-transparent hover:bg-transparent text-black shadow-none text-base"
           onClick={() => setIsOpen(false)}
         >
           <Link href={item.href}>{item.label}</Link>
         </Button>
       ))}
+      {session ? (
+        <Link
+          href="/dashboard"
+          className="flex items-center justify-center gap-2"
+        >
+          Acessar clínica
+        </Link>
+      ) : (
+        <Button>
+          <LogIn />
+          Portal da clínica
+        </Button>
+      )}
     </>
   );
 
@@ -55,7 +70,7 @@ export default function Header() {
 
               <SheetDescription>Veja nossos links</SheetDescription>
 
-              <nav className="flex flex-col items-start space-y-4 mt-6">
+              <nav className="flex flex-col space-y-4 mt-6">
                 <NavLinks />
               </nav>
             </div>
