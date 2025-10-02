@@ -131,6 +131,7 @@ model User {
   services     Service[]
   reminders    Reminder[]
   Appointment  Appointment[]
+  times        String[] @default([])
 
   accounts Account[]
   sessions Session[]
