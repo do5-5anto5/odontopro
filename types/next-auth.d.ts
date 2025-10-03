@@ -7,7 +7,7 @@ declare module "next-auth" {
 }
 
 interface User {
-  ind: string;
+  id: string;
   name: string;
   email: string;
   emailVerified?: null | boolean | string;
