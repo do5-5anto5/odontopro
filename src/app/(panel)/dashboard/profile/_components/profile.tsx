@@ -7,11 +7,19 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import imgTest from "../../../../../../public/foto1.png";
+
 export function ProfileContent() {
   const form = useProfileForm();
 
@@ -50,6 +58,7 @@ export function ProfileContent() {
                           placeholder="Digite o nome da clínica"
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -69,6 +78,7 @@ export function ProfileContent() {
                           placeholder="Digite o endereço da clínica"
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -82,6 +92,7 @@ export function ProfileContent() {
                       <FormControl>
                         <Input {...field} placeholder="Digite o telefone..." />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -101,10 +112,10 @@ export function ProfileContent() {
                           onValueChange={field.onChange}
                           defaultValue="active"
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="text-base">
                             <SelectValue placeholder="Selecione o status da clínica" />
                           </SelectTrigger>
-                          
+
                           <SelectContent>
                             <SelectItem value="active">
                               ATIVO (clínica aberta)
@@ -115,6 +126,7 @@ export function ProfileContent() {
                           </SelectContent>
                         </Select>
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
