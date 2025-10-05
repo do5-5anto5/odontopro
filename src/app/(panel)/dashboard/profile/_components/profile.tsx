@@ -63,6 +63,20 @@ export function ProfileContent() {
     );
   }
 
+  const timeZones = Intl.supportedValuesOf("timeZone").filter(
+    (zone) =>
+      zone.startsWith("America/Sao_Paulo") ||
+      zone.startsWith("America/Manaus") ||
+      zone.startsWith("America/Noronha") ||
+      zone.startsWith("America/Bahia") ||
+      zone.startsWith("America/Belem") ||
+      zone.startsWith("America/Boa_Vista") ||
+      zone.startsWith("America/Cuiaba") ||
+      zone.startsWith("America/Fortaleza") ||
+      zone.startsWith("America/Recife") ||
+      zone.startsWith("America/Rio_Branco")
+  );
+
   return (
     <div>
       <Form {...form}>
@@ -150,7 +164,7 @@ export function ProfileContent() {
                         <Select
                           value={field.value}
                           onValueChange={field.onChange}
-                          defaultValue="active"
+                          defaultValue={field.value ? "active" : "ínactive"}
                         >
                           <SelectTrigger className="text-base">
                             <SelectValue placeholder="Selecione o status da clínica" />
@@ -220,6 +234,39 @@ export function ProfileContent() {
                     </DialogContent>
                   </Dialog>
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="timezone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-semibold">
+                        Fuso horário
+                      </FormLabel>
+
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger className="text-base">
+                            <SelectValue placeholder="Selecione seu fuso horário" />
+                          </SelectTrigger>
+
+                          <SelectContent>
+                            {timeZones.map((zone) => (
+                              <SelectItem value={zone} key={zone}>
+                                {zone}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </CardContent>
           </Card>
