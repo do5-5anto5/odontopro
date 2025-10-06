@@ -10,7 +10,7 @@ const profileSchema = z.object({
   timezone: z.string().min(1, { message: "Selecione o fuso horário" }),
 });
 
-type ProfileFormData = z.infer<typeof profileSchema>;
+export type ProfileFormData = z.infer<typeof profileSchema>;
 
 export function useProfileForm() {
     return useForm<ProfileFormData>(
