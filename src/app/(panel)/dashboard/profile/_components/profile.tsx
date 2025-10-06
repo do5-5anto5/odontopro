@@ -1,5 +1,5 @@
 "use client";
-import * as button from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -31,12 +31,32 @@ import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import imgTest from "../../../../../../public/foto1.png";
-import { useProfileForm } from "./profile-form";
+import { ProfileFormData, useProfileForm } from "./profile-form";
+import { DialogClose } from "@radix-ui/react-dialog";
+import { Prisma } from "@/generated/prisma";
 
-export function ProfileContent() {
-  const [selectedHours, setSelectedHours] = useState<string[]>([]);
+type UserWithSubscription = Prisma.UserGetPayload<{
+  include: {
+    subscription: true;
+  };
+}>;
 
-  const form = useProfileForm();
+interface ProfileContentProps {
+  user: UserWithSubscription;
+}
+
+export function ProfileContent({ user }: ProfileContentProps) {
+  const [selectedHours, setSelectedHours] = useState<string[]>(
+    user.times ?? []
+  );
+
+  const form = useProfileForm({
+    name: user.name,
+    adress: user.adress,
+    phone: user.phone,
+    status: user.status,
+    timezone: user.timezone,
+  });
 
   function generateTimeSlots(): string[] {
     const hours: string[] = [];
@@ -77,10 +97,18 @@ export function ProfileContent() {
       zone.startsWith("America/Rio_Branco")
   );
 
+  async function onSubmit(values: ProfileFormData) {
+    const profileData = {
+      ...values,
+      times: selectedHours,
+    };
+    console.log(profileData);
+  }
+
   return (
     <div>
       <Form {...form}>
-        <form>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
           <Card>
             <CardHeader>
               <CardTitle>Minha Clínica</CardTitle>
@@ -166,7 +194,7 @@ export function ProfileContent() {
                           onValueChange={field.onChange}
                           defaultValue={field.value ? "active" : "ínactive"}
                         >
-                          <SelectTrigger className="text-base">
+                          <SelectTrigger className="w-full">
                             <SelectValue placeholder="Selecione o status da clínica" />
                           </SelectTrigger>
 
@@ -190,13 +218,13 @@ export function ProfileContent() {
 
                   <Dialog>
                     <DialogTrigger asChild>
-                      <button.Button
+                      <Button
                         variant="outline"
                         className="w-full justify-between font-light"
                       >
-                        Clique aqui para selecionar Horarios{" "}
+                        Clique aqui para selecionar horários{" "}
                         <ArrowRight className="w-5 h-5" />
-                      </button.Button>
+                      </Button>
                     </DialogTrigger>
 
                     <DialogContent>
@@ -214,7 +242,7 @@ export function ProfileContent() {
 
                         <div className="grid grid-cols-5 gap-2">
                           {hours.map((hour) => (
-                            <button.Button
+                            <Button
                               key={hour}
                               variant="outline"
                               className={cn(
@@ -227,10 +255,13 @@ export function ProfileContent() {
                               }}
                             >
                               {hour}
-                            </button.Button>
+                            </Button>
                           ))}
                         </div>
                       </section>
+                      <DialogClose className="w-full bg-black text-white rounded-sm h-10">
+                        Fechar
+                      </DialogClose>
                     </DialogContent>
                   </Dialog>
                 </div>
@@ -250,7 +281,7 @@ export function ProfileContent() {
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
-                          <SelectTrigger className="text-base">
+                          <SelectTrigger className="w-full">
                             <SelectValue placeholder="Selecione seu fuso horário" />
                           </SelectTrigger>
 
@@ -268,6 +299,9 @@ export function ProfileContent() {
                   )}
                 />
               </div>
+              <Button className="w-full bg-emerald-500 hover:bg-emerald-400 hover:text-gray-500">
+                Salvar alterações
+              </Button>
             </CardContent>
           </Card>
         </form>
