@@ -33,11 +33,30 @@ import { useState } from "react";
 import imgTest from "../../../../../../public/foto1.png";
 import { ProfileFormData, useProfileForm } from "./profile-form";
 import { DialogClose } from "@radix-ui/react-dialog";
+import { Prisma } from "@/generated/prisma";
 
-export function ProfileContent() {
-  const [selectedHours, setSelectedHours] = useState<string[]>([]);
+type UserWithSubscription = Prisma.UserGetPayload<{
+  include: {
+    subscription: true;
+  };
+}>;
 
-  const form = useProfileForm();
+interface ProfileContentProps {
+  user: UserWithSubscription;
+}
+
+export function ProfileContent({ user }: ProfileContentProps) {
+  const [selectedHours, setSelectedHours] = useState<string[]>(
+    user.times ?? []
+  );
+
+  const form = useProfileForm({
+    name: user.name,
+    adress: user.adress,
+    phone: user.phone,
+    status: user.status,
+    timezone: user.timezone,
+  });
 
   function generateTimeSlots(): string[] {
     const hours: string[] = [];
