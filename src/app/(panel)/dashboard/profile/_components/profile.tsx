@@ -34,6 +34,7 @@ import imgTest from "../../../../../../public/foto1.png";
 import { ProfileFormData, useProfileForm } from "./profile-form";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Prisma } from "@/generated/prisma";
+import { updateProfile } from "../_actions/update-profile";
 
 type UserWithSubscription = Prisma.UserGetPayload<{
   include: {
@@ -98,11 +99,17 @@ export function ProfileContent({ user }: ProfileContentProps) {
   );
 
   async function onSubmit(values: ProfileFormData) {
-    const profileData = {
-      ...values,
-      times: selectedHours,
-    };
-    console.log(profileData);
+
+    const response = await updateProfile({
+      name: values.name,
+      adress: values.adress,
+      phone: values.phone,
+      status: values.status === "active" ? true : false,
+      timezone: values.timezone,
+      times: selectedHours || []
+    });
+
+    console.log('response: ', response)
   }
 
   return (
@@ -117,7 +124,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
               <div className="flex justify-center">
                 <div className="bg-gray-200 relative h-40 w-40 rounded-full overflow-hidden">
                   <Image
-                    src={user.image? user.image : imgTest }
+                    src={user.image ? user.image : imgTest}
                     alt="Foto da clínica"
                     fill
                     className="object-cover"
