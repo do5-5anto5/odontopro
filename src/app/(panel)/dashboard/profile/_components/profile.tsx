@@ -117,7 +117,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
               <div className="flex justify-center">
                 <div className="bg-gray-200 relative h-40 w-40 rounded-full overflow-hidden">
                   <Image
-                    src={imgTest}
+                    src={user.image? user.image : imgTest }
                     alt="Foto da clínica"
                     fill
                     className="object-cover"
