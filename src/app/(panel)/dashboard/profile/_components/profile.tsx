@@ -26,15 +26,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Prisma } from "@/generated/prisma";
 import { cn } from "@/lib/utils";
+import { DialogClose } from "@radix-ui/react-dialog";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "sonner";
 import imgTest from "../../../../../../public/foto1.png";
-import { ProfileFormData, useProfileForm } from "./profile-form";
-import { DialogClose } from "@radix-ui/react-dialog";
-import { Prisma } from "@/generated/prisma";
 import { updateProfile } from "../_actions/update-profile";
+import { ProfileFormData, useProfileForm } from "./profile-form";
 
 type UserWithSubscription = Prisma.UserGetPayload<{
   include: {
@@ -109,7 +110,12 @@ export function ProfileContent({ user }: ProfileContentProps) {
       times: selectedHours || []
     });
 
-    console.log('response: ', response)
+    if (response.error) {
+      toast.error(response.error, {closeButton: true})
+      return
+    }
+
+    toast.success(response.data)
   }
 
   return (
