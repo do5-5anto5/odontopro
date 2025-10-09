@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Prisma } from "@/generated/prisma";
 import { cn } from "@/lib/utils";
+import { extractPhoneNumber, formatPhone } from "@/utils/formatPhone";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -52,10 +53,12 @@ export function ProfileContent({ user }: ProfileContentProps) {
     user.times ?? []
   );
 
+  const formattedPhoneNumber = formatPhone(user.phone || "")
+
   const form = useProfileForm({
     name: user.name,
     adress: user.adress,
-    phone: user.phone,
+    phone: formattedPhoneNumber,
     status: user.status,
     timezone: user.timezone,
   });
@@ -101,10 +104,12 @@ export function ProfileContent({ user }: ProfileContentProps) {
 
   async function onSubmit(values: ProfileFormData) {
 
+    const extractedValuePhone = extractPhoneNumber(values.phone || "")
+
     const response = await updateProfile({
       name: values.name,
       adress: values.adress,
-      phone: values.phone,
+      phone: extractedValuePhone,
       status: values.status === "active" ? true : false,
       timezone: values.timezone,
       times: selectedHours || []
@@ -185,7 +190,10 @@ export function ProfileContent({ user }: ProfileContentProps) {
                     <FormItem>
                       <FormLabel className="font-semibold">Telefone</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Digite o telefone..." />
+                        <Input {...field} placeholder="(35) 99912-3456" onChange={(event) => {
+                          const formattedValue = formatPhone(event.target.value)
+                          field.onChange(formattedValue)
+                        }}/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
