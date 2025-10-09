@@ -26,15 +26,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Prisma } from "@/generated/prisma";
 import { cn } from "@/lib/utils";
+import { extractPhoneNumber, formatPhone } from "@/utils/formatPhone";
+import { DialogClose } from "@radix-ui/react-dialog";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "sonner";
 import imgTest from "../../../../../../public/foto1.png";
-import { ProfileFormData, useProfileForm } from "./profile-form";
-import { DialogClose } from "@radix-ui/react-dialog";
-import { Prisma } from "@/generated/prisma";
 import { updateProfile } from "../_actions/update-profile";
+import { ProfileFormData, useProfileForm } from "./profile-form";
 
 type UserWithSubscription = Prisma.UserGetPayload<{
   include: {
@@ -51,10 +53,12 @@ export function ProfileContent({ user }: ProfileContentProps) {
     user.times ?? []
   );
 
+  const formattedPhoneNumber = formatPhone(user.phone || "");
+
   const form = useProfileForm({
     name: user.name,
     adress: user.adress,
-    phone: user.phone,
+    phone: formattedPhoneNumber,
     status: user.status,
     timezone: user.timezone,
   });
@@ -62,11 +66,10 @@ export function ProfileContent({ user }: ProfileContentProps) {
   function generateTimeSlots(): string[] {
     const hours: string[] = [];
 
-    for (let i = 8; i <= 24; i++) {
+    for (let i = 8; i <= 20; i++) {
       for (let j = 0; j < 2; j++) {
         const hour = i.toString().padStart(2, "0");
         const minute = (j * 30).toString().padStart(2, "0");
-
         hours.push(`${hour}:${minute}`);
       }
     }
@@ -99,17 +102,23 @@ export function ProfileContent({ user }: ProfileContentProps) {
   );
 
   async function onSubmit(values: ProfileFormData) {
+    const extractedValuePhone = extractPhoneNumber(values.phone || "");
 
     const response = await updateProfile({
       name: values.name,
       adress: values.adress,
-      phone: values.phone,
+      phone: extractedValuePhone,
       status: values.status === "active" ? true : false,
       timezone: values.timezone,
-      times: selectedHours || []
+      times: selectedHours || [],
     });
 
-    console.log('response: ', response)
+    if (response.error) {
+      toast.error(response.error, { closeButton: true });
+      return;
+    }
+
+    toast.success(response.data);
   }
 
   return (
@@ -179,7 +188,16 @@ export function ProfileContent({ user }: ProfileContentProps) {
                     <FormItem>
                       <FormLabel className="font-semibold">Telefone</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Digite o telefone..." />
+                        <Input
+                          {...field}
+                          placeholder="(35) 99912-3456"
+                          onChange={(event) => {
+                            const formattedValue = formatPhone(
+                              event.target.value
+                            );
+                            field.onChange(formattedValue);
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
