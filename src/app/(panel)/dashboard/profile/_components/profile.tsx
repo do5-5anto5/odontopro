@@ -53,7 +53,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
     user.times ?? []
   );
 
-  const formattedPhoneNumber = formatPhone(user.phone || "")
+  const formattedPhoneNumber = formatPhone(user.phone || "");
 
   const form = useProfileForm({
     name: user.name,
@@ -66,11 +66,10 @@ export function ProfileContent({ user }: ProfileContentProps) {
   function generateTimeSlots(): string[] {
     const hours: string[] = [];
 
-    for (let i = 8; i <= 24; i++) {
+    for (let i = 8; i <= 20; i++) {
       for (let j = 0; j < 2; j++) {
         const hour = i.toString().padStart(2, "0");
         const minute = (j * 30).toString().padStart(2, "0");
-
         hours.push(`${hour}:${minute}`);
       }
     }
@@ -103,8 +102,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
   );
 
   async function onSubmit(values: ProfileFormData) {
-
-    const extractedValuePhone = extractPhoneNumber(values.phone || "")
+    const extractedValuePhone = extractPhoneNumber(values.phone || "");
 
     const response = await updateProfile({
       name: values.name,
@@ -112,15 +110,15 @@ export function ProfileContent({ user }: ProfileContentProps) {
       phone: extractedValuePhone,
       status: values.status === "active" ? true : false,
       timezone: values.timezone,
-      times: selectedHours || []
+      times: selectedHours || [],
     });
 
     if (response.error) {
-      toast.error(response.error, {closeButton: true})
-      return
+      toast.error(response.error, { closeButton: true });
+      return;
     }
 
-    toast.success(response.data)
+    toast.success(response.data);
   }
 
   return (
@@ -190,10 +188,16 @@ export function ProfileContent({ user }: ProfileContentProps) {
                     <FormItem>
                       <FormLabel className="font-semibold">Telefone</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="(35) 99912-3456" onChange={(event) => {
-                          const formattedValue = formatPhone(event.target.value)
-                          field.onChange(formattedValue)
-                        }}/>
+                        <Input
+                          {...field}
+                          placeholder="(35) 99912-3456"
+                          onChange={(event) => {
+                            const formattedValue = formatPhone(
+                              event.target.value
+                            );
+                            field.onChange(formattedValue);
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
