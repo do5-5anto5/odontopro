@@ -1,6 +1,6 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+'use client'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -16,44 +16,46 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Prisma } from "@/generated/prisma";
-import { cn } from "@/lib/utils";
-import { extractPhoneNumber, formatPhone } from "@/utils/formatPhone";
-import { DialogClose } from "@radix-ui/react-dialog";
-import { ArrowRight } from "lucide-react";
-import Image from "next/image";
-import { useState } from "react";
-import { toast } from "sonner";
-import imgTest from "../../../../../../public/foto1.png";
-import { updateProfile } from "../_actions/update-profile";
-import { ProfileFormData, useProfileForm } from "./profile-form";
+} from '@/components/ui/select'
+import { Prisma } from '@/generated/prisma'
+import { cn } from '@/lib/utils'
+import { extractPhoneNumber, formatPhone } from '@/utils/formatPhone'
+import { DialogClose } from '@radix-ui/react-dialog'
+import { ArrowRight, Circle } from 'lucide-react'
+import Image from 'next/image'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import imgTest from '../../../../../../public/foto1.png'
+import { updateProfile } from '../_actions/update-profile'
+import { ProfileFormData, useProfileForm } from './profile-form'
+import { useLoading } from '@/utils/loading'
+import CircularLoading from '@/components/ui/circular-loading'
 
 type UserWithSubscription = Prisma.UserGetPayload<{
   include: {
-    subscription: true;
-  };
-}>;
+    subscription: true
+  }
+}>
 
 interface ProfileContentProps {
-  user: UserWithSubscription;
+  user: UserWithSubscription
 }
 
 export function ProfileContent({ user }: ProfileContentProps) {
-  const [selectedHours, setSelectedHours] = useState<string[]>(
-    user.times ?? []
-  );
+  const [selectedHours, setSelectedHours] = useState<string[]>(user.times ?? [])
 
-  const formattedPhoneNumber = formatPhone(user.phone || "");
+  const { loading, withLoading } = useLoading()
+
+  const formattedPhoneNumber = formatPhone(user.phone || '')
 
   const form = useProfileForm({
     name: user.name,
@@ -61,64 +63,66 @@ export function ProfileContent({ user }: ProfileContentProps) {
     phone: formattedPhoneNumber,
     status: user.status,
     timezone: user.timezone,
-  });
+  })
 
   function generateTimeSlots(): string[] {
-    const hours: string[] = [];
+    const hours: string[] = []
 
     for (let i = 8; i <= 20; i++) {
       for (let j = 0; j < 2; j++) {
-        const hour = i.toString().padStart(2, "0");
-        const minute = (j * 30).toString().padStart(2, "0");
-        hours.push(`${hour}:${minute}`);
+        const hour = i.toString().padStart(2, '0')
+        const minute = (j * 30).toString().padStart(2, '0')
+        hours.push(`${hour}:${minute}`)
       }
     }
 
-    return hours;
+    return hours
   }
 
-  const hours = generateTimeSlots();
+  const hours = generateTimeSlots()
 
   function toggleHour(hour: string) {
     setSelectedHours((prev) =>
       prev.includes(hour)
         ? prev.filter((h) => h !== hour)
         : [...prev, hour].sort()
-    );
+    )
   }
 
-  const timeZones = Intl.supportedValuesOf("timeZone").filter(
+  const timeZones = Intl.supportedValuesOf('timeZone').filter(
     (zone) =>
-      zone.startsWith("America/Sao_Paulo") ||
-      zone.startsWith("America/Manaus") ||
-      zone.startsWith("America/Noronha") ||
-      zone.startsWith("America/Bahia") ||
-      zone.startsWith("America/Belem") ||
-      zone.startsWith("America/Boa_Vista") ||
-      zone.startsWith("America/Cuiaba") ||
-      zone.startsWith("America/Fortaleza") ||
-      zone.startsWith("America/Recife") ||
-      zone.startsWith("America/Rio_Branco")
-  );
+      zone.startsWith('America/Sao_Paulo') ||
+      zone.startsWith('America/Manaus') ||
+      zone.startsWith('America/Noronha') ||
+      zone.startsWith('America/Bahia') ||
+      zone.startsWith('America/Belem') ||
+      zone.startsWith('America/Boa_Vista') ||
+      zone.startsWith('America/Cuiaba') ||
+      zone.startsWith('America/Fortaleza') ||
+      zone.startsWith('America/Recife') ||
+      zone.startsWith('America/Rio_Branco')
+  )
 
   async function onSubmit(values: ProfileFormData) {
-    const extractedValuePhone = extractPhoneNumber(values.phone || "");
+    await withLoading(async () => {
+      const extractedValuePhone = extractPhoneNumber(values.phone || '')
 
-    const response = await updateProfile({
-      name: values.name,
-      adress: values.adress,
-      phone: extractedValuePhone,
-      status: values.status === "active" ? true : false,
-      timezone: values.timezone,
-      times: selectedHours || [],
-    });
+      const response = await updateProfile({
+        name: values.name,
+        adress: values.adress,
+        phone: extractedValuePhone,
+        status: values.status === 'active' ? true : false,
+        timezone: values.timezone,
+        times: selectedHours || [],
+      })
 
-    if (response.error) {
-      toast.error(response.error, { closeButton: true });
-      return;
-    }
+      if (response.error) {
+        toast.error(response.error, { closeButton: true })
+        return
+      }
 
-    toast.success(response.data);
+      toast.success(response.data)
+    })
   }
 
   return (
@@ -153,6 +157,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                       <FormControl>
                         <Input
                           {...field}
+                          disabled={loading}
                           placeholder="Digite o nome da clínica"
                         />
                       </FormControl>
@@ -173,6 +178,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                       <FormControl>
                         <Input
                           {...field}
+                          disabled={loading}
                           placeholder="Digite o endereço da clínica"
                         />
                       </FormControl>
@@ -190,12 +196,13 @@ export function ProfileContent({ user }: ProfileContentProps) {
                       <FormControl>
                         <Input
                           {...field}
+                          disabled={loading}
                           placeholder="(35) 99912-3456"
                           onChange={(event) => {
                             const formattedValue = formatPhone(
                               event.target.value
-                            );
-                            field.onChange(formattedValue);
+                            )
+                            field.onChange(formattedValue)
                           }}
                         />
                       </FormControl>
@@ -215,9 +222,10 @@ export function ProfileContent({ user }: ProfileContentProps) {
 
                       <FormControl>
                         <Select
+                          disabled={loading}
                           value={field.value}
                           onValueChange={field.onChange}
-                          defaultValue={field.value ? "active" : "ínactive"}
+                          defaultValue={field.value ? 'active' : 'ínactive'}
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Selecione o status da clínica" />
@@ -246,8 +254,9 @@ export function ProfileContent({ user }: ProfileContentProps) {
                       <Button
                         variant="outline"
                         className="w-full justify-between font-light"
+                        disabled={loading}
                       >
-                        Clique aqui para selecionar horários{" "}
+                        Clique aqui para selecionar horários{' '}
                         <ArrowRight className="w-5 h-5" />
                       </Button>
                     </DialogTrigger>
@@ -271,12 +280,12 @@ export function ProfileContent({ user }: ProfileContentProps) {
                               key={hour}
                               variant="outline"
                               className={cn(
-                                "h-10",
+                                'h-10',
                                 selectedHours.includes(hour) &&
-                                  "border-2 border-emerald-500 text-primary"
+                                  'border-2 border-emerald-500 text-primary'
                               )}
                               onClick={() => {
-                                toggleHour(hour);
+                                toggleHour(hour)
                               }}
                             >
                               {hour}
@@ -306,7 +315,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
-                          <SelectTrigger className="w-full">
+                          <SelectTrigger disabled={loading} className="w-full">
                             <SelectValue placeholder="Selecione seu fuso horário" />
                           </SelectTrigger>
 
@@ -324,13 +333,23 @@ export function ProfileContent({ user }: ProfileContentProps) {
                   )}
                 />
               </div>
-              <Button className="w-full bg-emerald-500 hover:bg-emerald-400 hover:text-gray-500">
-                Salvar alterações
+              <Button
+                disabled={loading}
+                className="w-full bg-emerald-500 hover:bg-emerald-400 hover:text-gray-500"
+              >
+                {loading ? (
+                  <div className="flex flex-row items-center justify-center gap-2">
+                    <CircularLoading borderColor="white" />Salvando
+                  </div>
+                ) : (
+                  <>Salvar alterações</>
+                )}
+                
               </Button>
             </CardContent>
           </Card>
         </form>
       </Form>
     </div>
-  );
+  )
 }
