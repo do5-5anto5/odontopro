@@ -4,8 +4,11 @@
    Find groups of 3 digits that are followed by another group of 3 digits,
    ensuring that they are inserted among the thousands.
    Ex.: "100010" -> "1.000,10"
+   @param {string} price
+   @returns {string} price
+   @example
+   const formattedPrice = formatCurrency('1.300,50'); Returns: 1.300,50
     */
-   
 export function formatCurrency(price: string) {
   let value = price
 
@@ -19,4 +22,16 @@ export function formatCurrency(price: string) {
   }
 
   return value
+}
+
+/** Converts a money value to cents 
+ * @param {string} price
+ * @returns {number} price in cents
+ * @example
+ * const priceInCents = convertRealToCents('1.300,50'); Returns: 130050 cents
+*/
+export function convertRealToCents(price: string) {
+  const numericPrice = parseFloat(price.replace('.', '').replace(',', '.'))
+  const priceInCents = Math.round(numericPrice * 100)
+  return priceInCents
 }
