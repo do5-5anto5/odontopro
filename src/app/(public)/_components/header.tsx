@@ -1,28 +1,29 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { LogIn, Menu } from "lucide-react";
-import Link from "next/link";
-import { useSession } from "next-auth/react";
-import { handleRegister } from "../_actions/login";
+} from '@/components/ui/sheet'
+import { LogIn, Menu } from 'lucide-react'
+import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import { handleRegister } from '../_actions/login'
+import CircularLoading from '@/components/ui/circular-loading'
 
 export default function Header() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession()
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
-  const navItems = [{ href: "#profissionais", label: "Profissionais" }];
+  const navItems = [{ href: '#profissionais', label: 'Profissionais' }]
 
   async function handleLogin() {
-    await handleRegister("github")
+    await handleRegister('github')
   }
 
   const NavLinks = () => (
@@ -37,15 +38,17 @@ export default function Header() {
           <Link href={item.href}>{item.label}</Link>
         </Button>
       ))}
-      {status === "loading" ? (
-        <></>
+      {status === 'loading' ? (
+        <div className="flex items-center justify-center">
+          <Button disabled className="flex items-center gap-2">
+            <CircularLoading borderColor='white'/>
+            <span>Carregando...</span>
+          </Button>
+        </div>
       ) : session ? (
-        <Link
-          href="/dashboard"
-          className="flex items-center justify-center gap-2 bg-zinc-900 text-white rounded-md py-1 px-4"
-        >
-          Acessar clínica
-        </Link>
+        <Button>
+          <Link href="/dashboard">Acessar clínica</Link>
+        </Button>
       ) : (
         <Button onClick={handleLogin}>
           <LogIn />
@@ -53,7 +56,7 @@ export default function Header() {
         </Button>
       )}
     </>
-  );
+  )
 
   return (
     <header className="fixed top-0 right-0 left-0 z-[999] py-4 px-6 bg-white">
@@ -85,5 +88,5 @@ export default function Header() {
         </Sheet>
       </div>
     </header>
-  );
+  )
 }
