@@ -38,6 +38,7 @@ import imgTest from '../../../../../../public/foto1.png'
 import { updateProfile } from '../_actions/update-profile'
 import { ProfileFormData, useProfileForm } from './profile-form'
 import { useLoading } from '@/utils/loading'
+import CircularLoading from '@/components/ui/circular-loading'
 
 type UserWithSubscription = Prisma.UserGetPayload<{
   include: {
@@ -336,8 +337,14 @@ export function ProfileContent({ user }: ProfileContentProps) {
                 disabled={loading}
                 className="w-full bg-emerald-500 hover:bg-emerald-400 hover:text-gray-500"
               >
-                {loading ? <Circle /> : <h1>feio</h1>}
-                Salvar alterações
+                {loading ? (
+                  <div className="flex flex-row items-center justify-center gap-2">
+                    <CircularLoading borderColor="white" />Salvando
+                  </div>
+                ) : (
+                  <>Salvar alterações</>
+                )}
+                
               </Button>
             </CardContent>
           </Card>
