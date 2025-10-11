@@ -16,15 +16,27 @@ import { Input } from '@/components/ui/input'
 import { formatCurrency, convertRealToCents } from '@/utils/formatCurrency'
 import {
   DialogServiceFormData,
-  useDialogServiceForm
+  useDialogServiceForm,
 } from './dialog-service-form'
+import { createNewService } from '../_actions/create-service'
 
 export function DialogService() {
   const form = useDialogServiceForm()
 
   async function onSubmit(values: DialogServiceFormData) {
     const priceInCents = convertRealToCents(values.price)
-    console.log(priceInCents)
+    const hours = parseInt(values.hours) || 0
+    const minutes = parseInt(values.minutes) || 0
+
+    const duration = hours * 60 + minutes
+
+    const response = await createNewService({
+      name: values.name,
+      price: priceInCents,
+      duration: duration,
+    })
+    
+    console.log(response)
   }
 
   function changeCurrency(event: React.ChangeEvent<HTMLInputElement>) {
