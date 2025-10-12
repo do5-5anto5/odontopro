@@ -19,7 +19,7 @@ export function ServicesList() {
               Serviços
             </CardTitle>
 
-            {/* use 'asChild' property to avoid hidration error */}
+            {/* use 'asChild' property to avoid hydration error */}
             <DialogTrigger asChild>
               <Button>
                 <Plus className="w-4 h-4" />
@@ -27,7 +27,7 @@ export function ServicesList() {
             </DialogTrigger>
 
             <DialogContent>
-              <DialogService />
+              <DialogService closeModal={() => setIsDialogOpen(false)}/>
             </DialogContent>
           </CardHeader>
         </Card>
