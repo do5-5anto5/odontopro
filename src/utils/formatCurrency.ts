@@ -35,3 +35,20 @@ export function convertRealToCents(price: string) {
   const priceInCents = Math.round(numericPrice * 100)
   return priceInCents
 }
+
+const CURRENCY_FORMATTER = new Intl.NumberFormat('pt-BR', {
+  currency:'BRL',
+  style: 'currency',
+  minimumFractionDigits: 0,
+})
+
+
+/**Receive valor in cents, convert it to a string formatted to BRL (Real) currency
+ * @param {number} number
+ * @returns {string} formated price
+ * @example
+ * const price = formatCurrencyReal(1000); returns R$ 1000,00
+*/
+export function formatCurrencyReal(number: number) {
+  return CURRENCY_FORMATTER.format(number / 100)
+}

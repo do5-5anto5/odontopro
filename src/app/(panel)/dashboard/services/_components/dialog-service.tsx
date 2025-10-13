@@ -24,6 +24,7 @@ import { createNewService } from '../_actions/create-service'
 import { toast } from 'sonner'
 import { useLoading } from '@/utils/loading'
 import CircularLoading from '@/components/ui/circular-loading'
+import { useRouter } from 'next/navigation'
 
 interface DialogServiceProps {
   closeModal: () => void
@@ -32,6 +33,7 @@ interface DialogServiceProps {
 export function DialogService({ closeModal }: DialogServiceProps) {
   const { loading, withLoading } = useLoading()
   const form = useDialogServiceForm()
+  const router = useRouter()
 
   async function onSubmit(values: DialogServiceFormData) {
     await withLoading(async () => {
@@ -54,6 +56,7 @@ export function DialogService({ closeModal }: DialogServiceProps) {
 
     toast.success('Serviço cadastrado com sucesso!')
     handleCloseModal()
+    router.refresh()
   }
 
   function handleCloseModal() {
