@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getInfoSchedule } from './_data-access/get-info-schedule'
-import ScheduleContent from './_components/schedule-content'
+import { ScheduleContent } from './_components/schedule-content'
 
 /**
  * checks existing clinic profile then returns ScheduleContent or redirect to home page
@@ -17,7 +17,7 @@ export default async function SchedulePage({
 
   if (!user) redirect('/')
 
-    console.log(user)
+  console.log(user)
 
-  return <ScheduleContent />
+  return <ScheduleContent clinic={user} />
 }
