@@ -1,6 +1,7 @@
 'use client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import CircularLoading from '@/components/ui/circular-loading'
 import {
   Dialog,
   DialogContent,
@@ -29,16 +30,17 @@ import {
 import { Prisma } from '@/generated/prisma'
 import { cn } from '@/lib/utils'
 import { extractPhoneNumber, formatPhone } from '@/utils/formatPhone'
+import { useLoading } from '@/utils/loading'
 import { DialogClose } from '@radix-ui/react-dialog'
-import { ArrowRight, Circle } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
+import { signOut, useSession } from 'next-auth/react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import imgTest from '../../../../../../public/foto1.png'
 import { updateProfile } from '../_actions/update-profile'
 import { ProfileFormData, useProfileForm } from './profile-form'
-import { useLoading } from '@/utils/loading'
-import CircularLoading from '@/components/ui/circular-loading'
 
 type UserWithSubscription = Prisma.UserGetPayload<{
   include: {
@@ -51,12 +53,15 @@ interface ProfileContentProps {
 }
 
 export function ProfileContent({ user }: ProfileContentProps) {
+  const router = useRouter()
+
+
   const [selectedHours, setSelectedHours] = useState<string[]>(user.times ?? [])
-
+  
   const { loading, withLoading } = useLoading()
-
+  
   const formattedPhoneNumber = formatPhone(user.phone || '')
-
+  
   const form = useProfileForm({
     name: user.name,
     adress: user.adress,
@@ -64,7 +69,9 @@ export function ProfileContent({ user }: ProfileContentProps) {
     status: user.status,
     timezone: user.timezone,
   })
-
+  
+  const {update} = useSession()
+  
   function generateTimeSlots(): string[] {
     const hours: string[] = []
 
@@ -123,6 +130,13 @@ export function ProfileContent({ user }: ProfileContentProps) {
 
       toast.success(response.data)
     })
+  }
+
+  async function handleLogout() {
+    await signOut()
+    await update()
+    router.replace("/")
+
   }
 
   return (
@@ -350,6 +364,10 @@ export function ProfileContent({ user }: ProfileContentProps) {
           </Card>
         </form>
       </Form>
+
+      <section className='mt-4'>
+        <Button variant='destructive' onClick={handleLogout}>Sair da conta</Button>
+      </section>
     </div>
   )
 }
