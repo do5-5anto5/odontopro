@@ -6,17 +6,24 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel
+  FormLabel,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Prisma } from '@/generated/prisma'
 import { formatPhone } from '@/utils/formatPhone'
 import { MapPin } from 'lucide-react'
 import Image from 'next/image'
-import "react-datepicker/dist/react-datepicker.css"
+import 'react-datepicker/dist/react-datepicker.css'
 import imgTest from '../../../../../../public/foto1.png'
 import { DateTimePicker } from './date-picker'
 import { useAppointmentForm } from './schedule-form'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
   include: {
@@ -30,8 +37,8 @@ interface ScheduleContentProps {
 }
 
 /**
- * Render clinic data and appointment form* 
- * 
+ * Render clinic data and appointment form*
+ *
  * @param {ScheduleContentProps} props - Propriedades do componente
  * @returns {JSX.Element} - Elemento JSX renderizado
  */
@@ -150,7 +157,34 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit" className='bg-emerald-500'>Agendar</Button>
+
+            <FormField
+              control={form.control}
+              name="serviceId"
+              render={({ field }) => (
+                <FormItem className="">
+                  <FormLabel className="font-semibold">Selecione:</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Serviço" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clinic.services.map((service) => (
+                          <SelectItem key={service.id} value={service.id}>
+                            {service.name} - {Math.floor(service.duration / 60)}
+                            h {service.duration % 60}min
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="bg-emerald-500">
+              Agendar
+            </Button>
           </form>
         </Form>
       </section>
