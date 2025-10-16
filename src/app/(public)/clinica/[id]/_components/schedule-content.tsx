@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useCallback, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -43,8 +44,46 @@ interface ScheduleContentProps {
  * @returns {JSX.Element} - Elemento JSX renderizado
  */
 export function ScheduleContent({ clinic }: ScheduleContentProps) {
+
   const form = useAppointmentForm()
   const { watch } = form
+
+  const selectedDate = watch('date')
+  const selectedServiceId = watch('serviceId')
+
+  const [selectedTime, setSelectedTime] = useState('')
+
+  const fechBlockedTimes = useCallback(
+    async (date: Date): Promise<string[]> => {
+      try {
+        const dateString = date.toISOString().split('T')[0]
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_URL}/api/schedule/get-appointments?userId=${clinic.id}&date=${dateString}`
+        )
+
+        return []
+      } catch (error) {
+        console.log(error)
+
+        return []
+      }
+    },
+    [clinic.id]
+  )
+
+  useEffect(() => {
+      if (selectedDate)
+        fechBlockedTimes(selectedDate).then((blocked) => {
+          console.log('horários reservados: ' + blocked)
+        })
+  }, [
+    selectedDate,
+    selectedServiceId,
+    clinic.times,
+    fechBlockedTimes,
+    selectedTime,
+  ])
 
   return (
     <div className="min-h-screen flex flex-col">
