@@ -9,7 +9,7 @@ export const appointmentSchema = z.object({
   email: z.string().min(1, { message: 'Campo email é necessário' }),
   phone: z.string().min(1, { message: 'Campo telefone é necessário' }),
   date: z.date(),
-  service: z.string().min(1, { message: 'Selecione um serviço' }),
+  serviceId: z.string().min(1, { message: 'Selecione um serviço' }),
 })
 
 export type AppointmentFormData = z.infer<typeof appointmentSchema>
@@ -28,6 +28,7 @@ export function useAppointmentForm() {
       email: '',
       phone: '',
       date: new Date(),
+      serviceId: '',
     },
   })
 }

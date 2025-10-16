@@ -6,17 +6,24 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel
+  FormLabel,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Prisma } from '@/generated/prisma'
 import { formatPhone } from '@/utils/formatPhone'
 import { MapPin } from 'lucide-react'
 import Image from 'next/image'
-import "react-datepicker/dist/react-datepicker.css"
+import 'react-datepicker/dist/react-datepicker.css'
 import imgTest from '../../../../../../public/foto1.png'
 import { DateTimePicker } from './date-picker'
 import { useAppointmentForm } from './schedule-form'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
   include: {
@@ -30,13 +37,14 @@ interface ScheduleContentProps {
 }
 
 /**
- * Render clinic data and appointment form* 
- * 
+ * Render clinic data and appointment form*
+ *
  * @param {ScheduleContentProps} props - Propriedades do componente
  * @returns {JSX.Element} - Elemento JSX renderizado
  */
 export function ScheduleContent({ clinic }: ScheduleContentProps) {
   const form = useAppointmentForm()
+  const { watch } = form
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -150,7 +158,50 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit" className='bg-emerald-500'>Agendar</Button>
+
+            <FormField
+              control={form.control}
+              name="serviceId"
+              render={({ field }) => (
+                <FormItem className="">
+                  <FormLabel className="font-semibold">Selecione:</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Serviço" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clinic.services.map((service) => (
+                          <SelectItem key={service.id} value={service.id}>
+                            {service.name} - {Math.floor(service.duration / 60)}
+                            h {service.duration % 60}min
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            {clinic.status ? (
+              <Button
+                type="submit"
+                className="w-full bg-emerald-500 hover:bg-emerald-400"
+                disabled={
+                  !watch('name') ||
+                  !watch('email') ||
+                  !watch('phone') ||
+                  !watch('date') ||
+                  !watch('serviceId')
+                }
+              >
+                Realizar agendamento
+              </Button>
+            ) : (
+              <p className="bg-red-500 text-white text-center px-4 py-2 rounded-md">
+                A clínica encontra-se fechada no momento
+              </p>
+            )}
           </form>
         </Form>
       </section>
