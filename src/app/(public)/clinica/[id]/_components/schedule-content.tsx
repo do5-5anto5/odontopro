@@ -44,6 +44,7 @@ interface ScheduleContentProps {
  */
 export function ScheduleContent({ clinic }: ScheduleContentProps) {
   const form = useAppointmentForm()
+  const { watch } = form
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -182,9 +183,25 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="bg-emerald-500">
-              Agendar
-            </Button>
+            {clinic.status ? (
+              <Button
+                type="submit"
+                className="w-full bg-emerald-500 hover:bg-emerald-400"
+                disabled={
+                  !watch('name') ||
+                  !watch('email') ||
+                  !watch('phone') ||
+                  !watch('date') ||
+                  !watch('serviceId')
+                }
+              >
+                Realizar agendamento
+              </Button>
+            ) : (
+              <p className="bg-red-500 text-white text-center px-4 py-2 rounded-md">
+                A clínica encontra-se fechada no momento
+              </p>
+            )}
           </form>
         </Form>
       </section>
