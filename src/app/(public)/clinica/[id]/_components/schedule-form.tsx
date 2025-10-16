@@ -28,6 +28,7 @@ export function useAppointmentForm() {
       email: '',
       phone: '',
       date: new Date(),
+      serviceId: '',
     },
   })
 }
