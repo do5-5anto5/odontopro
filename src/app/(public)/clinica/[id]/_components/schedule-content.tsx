@@ -37,6 +37,11 @@ interface ScheduleContentProps {
   clinic: UserWithServiceAndSubscription
 }
 
+interface TimeSlot {
+  time: string
+  available: boolean
+}
+
 /**
  * Render clinic data and appointment form*
  *
@@ -44,7 +49,6 @@ interface ScheduleContentProps {
  * @returns {JSX.Element} - Elemento JSX renderizado
  */
 export function ScheduleContent({ clinic }: ScheduleContentProps) {
-
   const form = useAppointmentForm()
   const { watch } = form
 
@@ -52,9 +56,14 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
   const selectedServiceId = watch('serviceId')
 
   const [selectedTime, setSelectedTime] = useState('')
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([])
+  const [loadingSlots, setLoadingSlots] = useState(false)
+
+  const [blockedTimes, setBlockedTimes] = useState<string[]>([])
 
   const fechBlockedTimes = useCallback(
     async (date: Date): Promise<string[]> => {
+      setLoadingSlots(true)
       try {
         const dateString = date.toISOString().split('T')[0]
 
@@ -62,10 +71,15 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
           `${process.env.NEXT_PUBLIC_URL}/api/schedule/get-appointments?userId=${clinic.id}&date=${dateString}`
         )
 
-        return []
+        const json = await response.json()
+
+        setLoadingSlots(false)
+
+        return json
       } catch (error) {
         console.log(error)
 
+        setLoadingSlots(false)
         return []
       }
     },
@@ -73,10 +87,19 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
   )
 
   useEffect(() => {
-      if (selectedDate)
-        fechBlockedTimes(selectedDate).then((blocked) => {
-          console.log('horários reservados: ' + blocked)
-        })
+    if (selectedDate)
+      fechBlockedTimes(selectedDate).then((blocked) => {
+        setBlockedTimes(blocked)
+
+        const times = clinic.times || []
+
+        const finalSlots = times.map((time) => ({
+          time: time,
+          available: !blocked.includes(time),
+        }))
+
+        setAvailableTimeSlots(finalSlots)
+      })
   }, [
     selectedDate,
     selectedServiceId,
