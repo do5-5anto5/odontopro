@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
+import { ScheduleTimesList } from './schedule-times-list'
 
 type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
   include: {
@@ -37,7 +39,7 @@ interface ScheduleContentProps {
   clinic: UserWithServiceAndSubscription
 }
 
-interface TimeSlot {
+export interface TimeSlot {
   time: string
   available: boolean
 }
@@ -138,7 +140,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
         </div>
       </section>
 
-      <section className="max-w-2xl mx-auto w-full">
+      <section className="max-w-2xl mx-auto w-full mt-5 my-5">
         <Form {...form}>
           <form className="mx-2 space-y-6 bg-white p-6 border rounded-md shadow-sm">
             <FormField
@@ -182,7 +184,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
               name="phone"
               render={({ field }) => (
                 <FormItem className="my-2">
-                  <FormLabel className="font-semibold">Telefone</FormLabel>
+                  <FormLabel className="font-semibold">Telefone:</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -204,7 +206,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
               render={({ field }) => (
                 <FormItem className="flex items-center gap-2 space-y-1">
                   <FormLabel className="font-semibold">
-                    Data de agendamento
+                    Data de agendamento:
                   </FormLabel>
                   <FormControl>
                     <DateTimePicker
@@ -245,6 +247,40 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                 </FormItem>
               )}
             />
+
+            {selectedServiceId && (
+              <div className="space-y-2">
+                <Label className="font-semibold">Horários disponíveis:</Label>
+                <div className="bg-gray-100 p-4 rounded-lg">
+                  {loadingSlots ? (
+                    <p>Carregando horários</p>
+                  ) : availableTimeSlots.length === 0 ? (
+                    <p>Nenhum horário disponível</p>
+                  ) : (
+                    <ScheduleTimesList
+                      onSelectTime={(time) => setSelectedTime(time)}
+                      clinicTimes={clinic.times}
+                      blockedTimes={blockedTimes}
+                      availableTimeSlots={availableTimeSlots}
+                      selectedTime={selectedTime}
+                      selectedDate={selectedDate}
+                      requiredSlots={
+                        clinic.services.find(
+                          (service) => service.id === selectedServiceId
+                        )
+                          ? Math.ceil(
+                              clinic.services.find(
+                                (service) => service.id === selectedServiceId
+                              )!.duration / 30
+                            )
+                          : 1
+                      }
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+
             {clinic.status ? (
               <Button
                 type="submit"
