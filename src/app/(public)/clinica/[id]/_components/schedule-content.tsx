@@ -17,7 +17,7 @@ import Image from 'next/image'
 import 'react-datepicker/dist/react-datepicker.css'
 import imgTest from '../../../../../../public/foto1.png'
 import { DateTimePicker } from './date-picker'
-import { useAppointmentForm } from './schedule-form'
+import { AppointmentFormData, useAppointmentForm } from './schedule-form'
 import {
   Select,
   SelectContent,
@@ -27,6 +27,8 @@ import {
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { ScheduleTimesList } from './schedule-times-list'
+import { createNewAppointment } from '../_actions/create-appointment'
+import { toast } from 'sonner'
 
 type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
   include: {
@@ -110,6 +112,29 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
     selectedTime,
   ])
 
+  async function handleRegister(formData: AppointmentFormData) {
+    if (!selectedTime) return
+
+    const response = await createNewAppointment({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      time: selectedTime,
+      date: formData.date,
+      serviceId: formData.serviceId,
+      clinicId: clinic.id,
+    })
+
+    if (response.error) {
+      toast.error(response.error)
+      return
+    }
+
+    toast.success('Agendamento efetuado com sucesso!')
+    form.reset()
+    setSelectedTime('')
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <div className="h-32 bg-emerald-500" />
@@ -142,7 +167,10 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
 
       <section className="max-w-2xl mx-auto w-full mt-5 my-5">
         <Form {...form}>
-          <form className="mx-2 space-y-6 bg-white p-6 border rounded-md shadow-sm">
+          <form
+            className="mx-2 space-y-6 bg-white p-6 border rounded-md shadow-sm"
+            onSubmit={form.handleSubmit(handleRegister)}
+          >
             <FormField
               control={form.control}
               name="name"
