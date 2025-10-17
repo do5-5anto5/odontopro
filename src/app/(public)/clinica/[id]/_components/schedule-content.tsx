@@ -131,6 +131,8 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
     }
 
     toast.success('Agendamento efetuado com sucesso!')
+    form.reset()
+    setSelectedTime('')
   }
 
   return (
