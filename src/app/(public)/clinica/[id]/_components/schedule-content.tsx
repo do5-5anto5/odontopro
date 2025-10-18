@@ -102,6 +102,12 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
           available: !blocked.includes(time),
         }))
 
+        const stillAvailable = finalSlots.find(
+          (slot) => slot.time === selectedTime && slot.available
+        )
+
+        if (!stillAvailable) setSelectedTime('')
+
         setAvailableTimeSlots(finalSlots)
       })
   }, [

@@ -1,4 +1,3 @@
-import { User } from './../../../../generated/prisma/index.d'
 import prisma from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -84,7 +83,7 @@ export async function GET(request: NextRequest) {
     }
 
     const blockedTimes = Array.from(blockedSlots)
-    console.log('BLOCKED TIMES', blockedTimes)
+    console.log('day ',year, ' ', month, ' ', day, ' BLOCKED TIMES', blockedTimes)
 
     return NextResponse.json(blockedTimes)
   } catch (error) {
