@@ -10,7 +10,7 @@ export function isToday(date: Date) {
     return (
         date.getFullYear() === now.getFullYear() &&
         date.getMonth() === now.getMonth() &&
-        date.getDay() === now.getDay()
+        date.getDate() === now.getDate()
     )
 }
 
