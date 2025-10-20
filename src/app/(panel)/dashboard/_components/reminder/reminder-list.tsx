@@ -3,7 +3,21 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Reminder } from '@/generated/prisma'
+import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { Plus, Trash } from 'lucide-react'
+import { deleteReminder } from '../../_actions/delete-reminder'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+import {
+  Dialog,
+  DialogHeader,
+  DialogTrigger,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { ReminderContent } from './reminder-content'
+import { useState } from 'react'
 
 interface ReminderListProps {
   reminders: Reminder[]
@@ -17,7 +31,20 @@ interface ReminderListProps {
  * @returns {React.ReactElement} - Reminder list component.
  */
 export function ReminderList({ reminders }: ReminderListProps) {
-  console.log(reminders)
+  const router = useRouter()
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  async function handleDeleteReminder(id: string) {
+    const response = await deleteReminder({ reminderId: id })
+
+    if (response.error) {
+      toast(response.error)
+      return
+    }
+
+    toast.success(response.data)
+    router.refresh()
+  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -27,28 +54,54 @@ export function ReminderList({ reminders }: ReminderListProps) {
             Lembretes
           </CardTitle>
 
-          <Button variant="ghost" className="w-9 p-0">
-            <Plus className="w-5 h-5" />
-          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" className="w-9 px-0">
+                <Plus className="w-5 h-5" />
+              </Button>
+            </DialogTrigger>
+
+            <DialogContent className="max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Novo Lembrete</DialogTitle>
+
+                <DialogDescription>Adicionar Detalhes:</DialogDescription>
+              </DialogHeader>
+
+              <ReminderContent closeDialog={() => setIsDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
         </CardHeader>
 
         <CardContent>
           {reminders.length === 0 && (
-            <p className="text-sm md:text-base text-gray-500">Nenhum lembrete encontrado</p>
+            <p className="text-sm md:text-base text-gray-500">
+              Nenhum lembrete encontrado
+            </p>
           )}
-          {reminders.map((item) => (
-            <article
-              key={item.id}
-              className="flex flex-wrap flex-row items-center justify-between p-2 
-              bg-yellow-100 rounded-md"
-            >
-              <p className="text-sm md:text-base">{item.description}</p>
 
-              <Button className="bg-red-500 hover:bg-red-400 shadow-none rounded-full p-2 w-8 h-8 ">
-                <Trash className="w-4 h-4 text-white" />
-              </Button>
-            </article>
-          ))}
+          <ScrollArea
+            className="max-h-[340px] lg:max-h[calc(100vh-15rem)]
+          pr-0 w-full flex-1 space-y-2 overflow-scroll"
+          >
+            {reminders.map((item) => (
+              <article
+                key={item.id}
+                className="flex flex-wrap flex-row items-center justify-between p-2
+              bg-yellow-100 rounded-md"
+              >
+                <p className="text-sm md:text-base break-words w-full  flex-1">{item.description}</p>
+
+                <Button
+                  className="bg-red-500 hover:bg-red-400 shadow-none rounded-full p-2"
+                  size='icon'
+                  onClick={() => handleDeleteReminder(item.id)}
+                >
+                  <Trash className="w-4 h-4 text-white text-justify" />
+                </Button>
+              </article>
+            ))}
+          </ScrollArea>
         </CardContent>
       </Card>
     </div>
