@@ -18,6 +18,8 @@ import {
 } from '@/components/ui/dialog'
 import { ReminderContent } from './reminder-content'
 import { useState } from 'react'
+import { useLoading } from '@/utils/loading'
+import CircularLoading from '@/components/ui/circular-loading'
 
 interface ReminderListProps {
   reminders: Reminder[]
@@ -33,17 +35,20 @@ interface ReminderListProps {
 export function ReminderList({ reminders }: ReminderListProps) {
   const router = useRouter()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { loading, withLoading } = useLoading()
 
   async function handleDeleteReminder(id: string) {
-    const response = await deleteReminder({ reminderId: id })
+    withLoading(async () => {
+      const response = await deleteReminder({ reminderId: id })
 
-    if (response.error) {
-      toast(response.error)
-      return
-    }
+      if (response.error) {
+        toast(response.error)
+        return
+      }
 
-    toast.success(response.data)
-    router.refresh()
+      toast.success(response.data)
+      router.refresh()
+    })
   }
 
   return (
@@ -90,14 +95,21 @@ export function ReminderList({ reminders }: ReminderListProps) {
                 className="flex flex-wrap flex-row items-center justify-between p-2
               bg-yellow-100 rounded-md"
               >
-                <p className="text-sm md:text-base break-words w-full  flex-1">{item.description}</p>
+                <p className="text-sm md:text-base break-words w-full  flex-1">
+                  {item.description}
+                </p>
 
                 <Button
                   className="bg-red-500 hover:bg-red-400 shadow-none rounded-full p-2"
-                  size='icon'
+                  size="icon"
                   onClick={() => handleDeleteReminder(item.id)}
+                  disabled={loading}
                 >
-                  <Trash className="w-4 h-4 text-white text-justify" />
+                  {loading ? (
+                    <CircularLoading borderColor="emerald-500" />
+                  ) : (
+                    <Trash className="w-4 h-4 text-white text-justify" />
+                  )}
                 </Button>
               </article>
             ))}
