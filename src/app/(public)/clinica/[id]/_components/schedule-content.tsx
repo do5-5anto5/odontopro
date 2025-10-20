@@ -29,6 +29,8 @@ import { Label } from '@/components/ui/label'
 import { ScheduleTimesList } from './schedule-times-list'
 import { createNewAppointment } from '../_actions/create-appointment'
 import { toast } from 'sonner'
+import CircularLoading from '@/components/ui/circular-loading'
+import { useLoading } from '@/utils/loading'
 
 type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
   include: {
@@ -64,6 +66,8 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
   const [loadingSlots, setLoadingSlots] = useState(false)
 
   const [blockedTimes, setBlockedTimes] = useState<string[]>([])
+
+  const { loading, withLoading } = useLoading()
 
   const fechBlockedTimes = useCallback(
     async (date: Date): Promise<string[]> => {
@@ -121,24 +125,26 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
   async function handleRegister(formData: AppointmentFormData) {
     if (!selectedTime) return
 
-    const response = await createNewAppointment({
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      time: selectedTime,
-      date: formData.date,
-      serviceId: formData.serviceId,
-      clinicId: clinic.id,
+    withLoading(async () => {
+      const response = await createNewAppointment({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        time: selectedTime,
+        date: formData.date,
+        serviceId: formData.serviceId,
+        clinicId: clinic.id,
+      })
+
+      if (response.error) {
+        toast.error(response.error)
+        return
+      }
+
+      toast.success('Agendamento efetuado com sucesso!')
+      form.reset()
+      setSelectedTime('')
     })
-
-    if (response.error) {
-      toast.error(response.error)
-      return
-    }
-
-    toast.success('Agendamento efetuado com sucesso!')
-    form.reset()
-    setSelectedTime('')
   }
 
   return (
@@ -190,6 +196,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                       id="name"
                       placeholder="Digite seu nome completo"
                       {...field}
+                      disabled={loading}
                     />
                   </FormControl>
                 </FormItem>
@@ -207,6 +214,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                       id="email"
                       placeholder="Digite seu email..."
                       {...field}
+                      disabled={loading}
                     />
                   </FormControl>
                 </FormItem>
@@ -228,6 +236,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                         const formattedValue = formatPhone(e.target.value)
                         field.onChange(formattedValue)
                       }}
+                      disabled={loading}
                     />
                   </FormControl>
                 </FormItem>
@@ -324,10 +333,15 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                   !watch('email') ||
                   !watch('phone') ||
                   !watch('date') ||
-                  !watch('serviceId')
+                  !watch('serviceId') ||
+                  loading
                 }
               >
-                Realizar agendamento
+                {!loading ? (
+                  `Realizar agendamento`
+                ) : (
+                  <CircularLoading borderColor="white" />
+                )}
               </Button>
             ) : (
               <p className="bg-red-500 text-white text-center px-4 py-2 rounded-md">

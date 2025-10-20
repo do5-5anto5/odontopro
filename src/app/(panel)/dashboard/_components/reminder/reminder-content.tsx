@@ -14,6 +14,8 @@ import { ReminderFormData, useReminderForm } from './reminder-form'
 import { createReminder } from '../../_actions/create-reminder'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import { useLoading } from '@/utils/loading'
+import CircularLoading from '@/components/ui/circular-loading'
 
 interface ReminderContentProps {
   closeDialog: () => void
@@ -28,18 +30,23 @@ interface ReminderContentProps {
 export function ReminderContent({ closeDialog }: ReminderContentProps) {
   const form = useReminderForm()
   const router = useRouter()
+  const { loading, withLoading } = useLoading()
 
   async function onSubmit(formData: ReminderFormData) {
-    const response = await createReminder({ description: formData.description })
+    withLoading(async () => {
+      const response = await createReminder({
+        description: formData.description,
+      })
 
-    if (response.error) {
-      toast.error(response.error)
-      return
-    }
+      if (response.error) {
+        toast.error(response.error)
+        return
+      }
 
-    toast.success(response.data)
-    router.refresh()
-    closeDialog()
+      toast.success(response.data)
+      router.refresh()
+      closeDialog()
+    })
   }
 
   return (
@@ -60,14 +67,22 @@ export function ReminderContent({ closeDialog }: ReminderContentProps) {
                     {...field}
                     placeholder="Descreva o lembrete"
                     className="max-h-52 resize-none"
+                    disabled={loading}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit" disabled={!form.watch('description')}>
-            Registrar lembrete
+          <Button
+            type="submit"
+            disabled={!form.watch('description') || loading}
+          >
+            {loading ? (
+              <CircularLoading borderColor="white" />
+            ) : (
+              'Registrar lembrete'
+            )}
           </Button>
         </form>
       </Form>
