@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { ReminderContent } from './reminder-content'
+import { useState } from 'react'
 
 interface ReminderListProps {
   reminders: Reminder[]
@@ -31,6 +32,7 @@ interface ReminderListProps {
  */
 export function ReminderList({ reminders }: ReminderListProps) {
   const router = useRouter()
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   async function handleDeleteReminder(id: string) {
     const response = await deleteReminder({ reminderId: id })
@@ -52,7 +54,7 @@ export function ReminderList({ reminders }: ReminderListProps) {
             Lembretes
           </CardTitle>
 
-          <Dialog>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="ghost" className="w-9 px-0">
                 <Plus className="w-5 h-5" />
@@ -66,7 +68,7 @@ export function ReminderList({ reminders }: ReminderListProps) {
                 <DialogDescription>Adicionar Detalhes:</DialogDescription>
               </DialogHeader>
 
-              <ReminderContent />
+              <ReminderContent closeDialog={() => setIsDialogOpen(false)} />
             </DialogContent>
           </Dialog>
         </CardHeader>
@@ -80,21 +82,22 @@ export function ReminderList({ reminders }: ReminderListProps) {
 
           <ScrollArea
             className="max-h-[340px] lg:max-h[calc(100vh-15rem)]
-          pr-0 w-full flex-1"
+          pr-0 w-full flex-1 space-y-2 overflow-scroll"
           >
             {reminders.map((item) => (
               <article
                 key={item.id}
-                className="flex flex-wrap flex-row items-center justify-between p-2 
+                className="flex flex-wrap flex-row items-center justify-between p-2
               bg-yellow-100 rounded-md"
               >
-                <p className="text-sm md:text-base">{item.description}</p>
+                <p className="text-sm md:text-base break-words w-full  flex-1">{item.description}</p>
 
                 <Button
-                  className="bg-red-500 hover:bg-red-400 shadow-none rounded-full p-2 w-8 h-8"
+                  className="bg-red-500 hover:bg-red-400 shadow-none rounded-full p-2"
+                  size='icon'
                   onClick={() => handleDeleteReminder(item.id)}
                 >
-                  <Trash className="w-4 h-4 text-white" />
+                  <Trash className="w-4 h-4 text-white text-justify" />
                 </Button>
               </article>
             ))}
