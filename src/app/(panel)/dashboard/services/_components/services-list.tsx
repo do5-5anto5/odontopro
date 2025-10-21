@@ -8,6 +8,10 @@ import { formatCurrencyReal } from '@/utils/formatCurrency'
 import { Pencil, Plus, X } from 'lucide-react'
 import { useState } from 'react'
 import { DialogService } from './dialog-service'
+import { toast } from 'sonner'
+import { deleteService } from '../_actions/delete-service'
+import { useRouter } from 'next/navigation'
+import { useLoading } from '@/utils/loading'
 
 interface ServicesListProps {
   services: Service[]
@@ -15,8 +19,24 @@ interface ServicesListProps {
 
 export function ServicesList({ services }: ServicesListProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const router = useRouter()
+  const { loading, withLoading } = useLoading()
 
   console.log(services)
+
+  async function handleDeleteService(id: string) {
+    withLoading(async () => {
+      const response = await deleteService({ id: id })
+
+      if (response.error) {
+        toast.error(response.error)
+        return
+      }
+
+      toast.success(response.data)
+      router.refresh()
+    })
+  }
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -58,7 +78,12 @@ export function ServicesList({ services }: ServicesListProps) {
                     <Button variant="ghost" size="icon" onClick={() => {}}>
                       <Pencil className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => {}}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteService(service.id)}
+                      disabled={loading}
+                    >
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
