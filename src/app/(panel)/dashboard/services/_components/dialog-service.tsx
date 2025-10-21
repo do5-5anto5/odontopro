@@ -25,14 +25,26 @@ import { toast } from 'sonner'
 import { useLoading } from '@/utils/loading'
 import CircularLoading from '@/components/ui/circular-loading'
 import { useRouter } from 'next/navigation'
+import { updateService } from '../_actions/update-service'
 
 interface DialogServiceProps {
   closeModal: () => void
+  serviceId?: string
+  initialValues?: {
+    name: string
+    price: string
+    hours: string
+    minutes: string
+  }
 }
 
-export function DialogService({ closeModal }: DialogServiceProps) {
+export function DialogService({
+  closeModal,
+  serviceId,
+  initialValues,
+}: DialogServiceProps) {
   const { loading, withLoading } = useLoading()
-  const form = useDialogServiceForm()
+  const form = useDialogServiceForm({ initialValue: initialValues })
   const router = useRouter()
 
   async function onSubmit(values: DialogServiceFormData) {
@@ -43,18 +55,55 @@ export function DialogService({ closeModal }: DialogServiceProps) {
 
       const duration = hours * 60 + minutes
 
-      const response = await createNewService({
-        name: values.name,
-        price: priceInCents,
-        duration: duration,
-      })
-      if (response.error) {
-        toast.error(response.error)
-        return
+      if (serviceId) {
+        await updateServiceById({
+          serviceId,
+          name: values.name,
+          priceInCents,
+          duration,
+        })
+      } else {
+        const response = await createNewService({
+          name: values.name,
+          price: priceInCents,
+          duration: duration,
+        })
+        if (response.error) {
+          toast.error(response.error)
+          return
+        }
       }
     })
 
     toast.success('Serviço cadastrado com sucesso!')
+    handleCloseModal()
+    router.refresh()
+  }
+
+  async function updateServiceById({
+    serviceId,
+    name,
+    priceInCents,
+    duration,
+  }: {
+    serviceId: string
+    name: string
+    priceInCents: number
+    duration: number
+  }) {
+    const response = await updateService({
+      serviceId: serviceId,
+      name,
+      price: priceInCents,
+      duration,
+    })
+
+    if (response.error) {
+      toast.error(response.error)
+      return
+    }
+
+    toast.success('Serviço editado com sucesso!')
     handleCloseModal()
     router.refresh()
   }
@@ -174,6 +223,8 @@ export function DialogService({ closeModal }: DialogServiceProps) {
                 <CircularLoading borderColor="white" />
                 Carregando
               </div>
+            ) : serviceId ? (
+              <>Editar serviço</>
             ) : (
               <>Adicionar serviço</>
             )}
