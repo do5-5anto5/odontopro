@@ -22,6 +22,8 @@ export function ServicesList({ services }: ServicesListProps) {
   const router = useRouter()
   const { loading, withLoading } = useLoading()
 
+  const [updateService, setUpdateService] = useState<null | Service>(null)
+
   console.log(services)
 
   async function handleDeleteService(id: string) {
@@ -38,8 +40,21 @@ export function ServicesList({ services }: ServicesListProps) {
     })
   }
 
+  async function handleUpdateService(service: Service) {
+    setUpdateService(service)
+    setIsDialogOpen(true)
+  }
+
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog open={isDialogOpen} onOpenChange={(open) =>{
+      setIsDialogOpen(open)
+
+      if (!open) {
+        setUpdateService(null)
+      }
+    }
+
+    }>
       <section className="mx-auto">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -54,8 +69,36 @@ export function ServicesList({ services }: ServicesListProps) {
               </Button>
             </DialogTrigger>
 
-            <DialogContent>
-              <DialogService closeModal={() => setIsDialogOpen(false)} />
+            <DialogContent
+              onInteractOutside={(e) => {
+                e.preventDefault()
+                setUpdateService(null)
+                setIsDialogOpen(false)
+              }}
+            >
+              <DialogService
+                closeModal={() => {
+                  setUpdateService(null)
+                  setIsDialogOpen(false)
+                }}
+                serviceId={updateService ? updateService.id : undefined}
+                initialValues={
+                  updateService
+                    ? {
+                        name: updateService.name,
+                        price: (updateService.price / 100)
+                          .toFixed(2)
+                          .replace('.', ','),
+                        hours: Math.floor(
+                          updateService.duration / 60
+                        ).toString(),
+                        minutes: Math.ceil(
+                          updateService.duration % 60
+                        ).toString(),
+                      }
+                    : undefined
+                }
+              />
             </DialogContent>
           </CardHeader>
 
@@ -75,7 +118,12 @@ export function ServicesList({ services }: ServicesListProps) {
                   </div>
 
                   <div>
-                    <Button variant="ghost" size="icon" onClick={() => {}}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleUpdateService(service)}
+                      disabled={loading}
+                    >
                       <Pencil className="w-4 h-4" />
                     </Button>
                     <Button
