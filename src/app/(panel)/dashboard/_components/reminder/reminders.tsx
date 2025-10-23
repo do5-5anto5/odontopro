@@ -7,7 +7,6 @@ export async function Reminders({ userId }: { userId: string }) {
 
   return (
     <div>
-      <h1>LEMBRETES</h1>
       <ReminderList reminders={reminders}/>
     </div>
   )
