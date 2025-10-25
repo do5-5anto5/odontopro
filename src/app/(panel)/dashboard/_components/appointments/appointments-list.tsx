@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Eye, X } from 'lucide-react'
 import { cancelAppointment } from '../../_actions/cancel-appointment'
 import { toast } from 'sonner'
+import { useLoading } from '@/utils/loading'
 
 interface AppointmentsListProps {
   times: string[]
@@ -35,7 +36,14 @@ export function AppointmentsList({ times }: AppointmentsListProps) {
   const date = searchParams.get('date')
   const queryClient = useQueryClient()
 
-  const { data: appointments, isLoading, refetch } = useQuery({
+  const { loading: actionLoading, withLoading: withActionLoading } =
+    useLoading()
+
+  const {
+    data: appointments,
+    isLoading: fetchloading,
+    refetch,
+  } = useQuery({
     queryKey: ['get-appointments', date],
     queryFn: async () => {
       let activeDate = date
@@ -83,16 +91,18 @@ export function AppointmentsList({ times }: AppointmentsListProps) {
   }
 
   async function handleCancelAppointment(appointmentId: string) {
-    const response = await cancelAppointment({ appointmentId: appointmentId })
+    withActionLoading(async () => {
+      const response = await cancelAppointment({ appointmentId: appointmentId })
 
-    if (response.error) {
-      toast.error(response.error)
-      return
-    }
+      if (response.error) {
+        toast.error(response.error)
+        return
+      }
 
-    queryClient.invalidateQueries({queryKey: ['get-appointments']})
-    await refetch()
-    toast.success(response.data)
+      queryClient.invalidateQueries({ queryKey: ['get-appointments'] })
+      await refetch()
+      toast.success(response.data)
+    })
   }
 
   return (
@@ -102,13 +112,16 @@ export function AppointmentsList({ times }: AppointmentsListProps) {
           className="flex flex-row items-center justify-between
             space-y-0 pb-2"
         >
-          <CardTitle className="text-xl md:text-2xl font bold"></CardTitle>
+          <CardTitle className="text-xl md:text-2xl font bold">
+            Agendamentos
+          </CardTitle>
+          {actionLoading ? <CircularLoading borderColor="emerald-800" /> : ''}
           <button>SELECIONAR DATA</button>
         </CardHeader>
 
         <CardContent>
           <ScrollArea className="h-[calc(100vh-20rem)] lg:h-[calc(100vh-15rem)] pr-4">
-            {isLoading ? (
+            {fetchloading ? (
               <div className="flex flex-row items-center">
                 <p className="text-lg mr-2">Carregando agenda</p>
                 <CircularLoading borderColor="emerald-800" />
@@ -143,6 +156,7 @@ export function AppointmentsList({ times }: AppointmentsListProps) {
                           <Button
                             variant="ghost"
                             onClick={() => handleCancelAppointment(occupant.id)}
+                            disabled={fetchloading || actionLoading}
                           >
                             <X className="w-4 h-4" />
                           </Button>
