@@ -52,6 +52,9 @@ export function AppointmentsList({ times }: AppointmentsListProps) {
 
       return json.appointments as AppointmentWithService[]
     },
+    // 20secs
+    staleTime: 20000,
+    refetchInterval: 30000
   })
 
   const occupantMap: Record<string, AppointmentWithService> = {}
