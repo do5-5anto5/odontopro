@@ -37,18 +37,13 @@ export function DateTimePicker({
           date.getFullYear(),
           date.getMonth(),
           date.getDate(),
-          12, 
+          12,
           0,
           0,
           0
         )
       )
-      
-      console.log('Data selecionada (corrigida):', correctedDate)
-      console.log('Data ISO:', correctedDate.toISOString())
-      console.log('Data local:', correctedDate.toLocaleDateString('pt-BR'))
-      
-      console.log(date)
+
       setStartDate(correctedDate)
       onChange(date)
     }
