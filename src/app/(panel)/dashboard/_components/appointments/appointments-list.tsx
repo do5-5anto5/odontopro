@@ -1,6 +1,7 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -12,13 +13,15 @@ import { Button } from '@/components/ui/button'
 import { Eye, X } from 'lucide-react'
 import { cancelAppointment } from '../../_actions/cancel-appointment'
 import { toast } from 'sonner'
+import { Dialog, DialogTrigger } from '@/components/ui/dialog'
+import { DialogAppointment } from './dialog-appointment'
 import { useLoading } from '@/utils/loading'
 
 interface AppointmentsListProps {
   times: string[]
 }
 
-type AppointmentWithService = Prisma.AppointmentGetPayload<{
+export type AppointmentWithService = Prisma.AppointmentGetPayload<{
   include: {
     service: true
   }
@@ -38,6 +41,9 @@ export function AppointmentsList({ times }: AppointmentsListProps) {
 
   const { loading: actionLoading, withLoading: withActionLoading } =
     useLoading()
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [detailAppointment, setDetailAppointment] =
+    useState<AppointmentWithService | null>(null)
 
   const {
     data: appointments,
@@ -106,7 +112,7 @@ export function AppointmentsList({ times }: AppointmentsListProps) {
   }
 
   return (
-    <div>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <Card>
         <CardHeader
           className="flex flex-row items-center justify-between
@@ -146,12 +152,14 @@ export function AppointmentsList({ times }: AppointmentsListProps) {
 
                       <div className="ml-auto">
                         <div className="flex">
-                          <Button
-                            variant="ghost"
-                            // TODO show appointments details
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              onClick={() => setDetailAppointment(occupant)}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </DialogTrigger>
 
                           <Button
                             variant="ghost"
@@ -180,6 +188,8 @@ export function AppointmentsList({ times }: AppointmentsListProps) {
           </ScrollArea>
         </CardContent>
       </Card>
-    </div>
+
+      <DialogAppointment appointment={detailAppointment} />
+    </Dialog>
   )
 }
