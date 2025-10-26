@@ -10,7 +10,6 @@ interface ProfessionalsProps {
 }
 
 export function Professionals({ professionals }: ProfessionalsProps) {
-  console.log('profs', professionals)
 
   return (
     <section className="bg-gray-50 py-16">
