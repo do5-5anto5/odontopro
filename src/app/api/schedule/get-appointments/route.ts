@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
  * GET /api/schedule/get-appointments
  *
  * Retrieves all appointments for a given user on a given date.
- * 
+ *
  * @description Returns blocked hours for appointments
  *
  * @param {NextRequest} request - The request object.
@@ -83,7 +83,6 @@ export async function GET(request: NextRequest) {
     }
 
     const blockedTimes = Array.from(blockedSlots)
-    console.log('day ',year, ' ', month, ' ', day, ' BLOCKED TIMES', blockedTimes)
 
     return NextResponse.json(blockedTimes)
   } catch (error) {

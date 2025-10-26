@@ -24,8 +24,6 @@ export function ServicesList({ services }: ServicesListProps) {
 
   const [updateService, setUpdateService] = useState<null | Service>(null)
 
-  console.log(services)
-
   async function handleDeleteService(id: string) {
     withLoading(async () => {
       const response = await deleteService({ id: id })
@@ -46,15 +44,16 @@ export function ServicesList({ services }: ServicesListProps) {
   }
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={(open) =>{
-      setIsDialogOpen(open)
+    <Dialog
+      open={isDialogOpen}
+      onOpenChange={(open) => {
+        setIsDialogOpen(open)
 
-      if (!open) {
-        setUpdateService(null)
-      }
-    }
-
-    }>
+        if (!open) {
+          setUpdateService(null)
+        }
+      }}
+    >
       <section className="mx-auto">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
