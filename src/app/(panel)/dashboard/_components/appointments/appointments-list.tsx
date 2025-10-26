@@ -16,6 +16,7 @@ import { toast } from 'sonner'
 import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import { DialogAppointment } from './dialog-appointment'
 import { useLoading } from '@/utils/loading'
+import { ButtonDateAppointments } from './button-date'
 
 interface AppointmentsListProps {
   times: string[]
@@ -121,8 +122,10 @@ export function AppointmentsList({ times }: AppointmentsListProps) {
           <CardTitle className="text-xl md:text-2xl font bold">
             Agendamentos
           </CardTitle>
-          {actionLoading ? <CircularLoading borderColor="emerald-800" /> : ''}
-          <button>SELECIONAR DATA</button>
+
+          <ButtonDateAppointments />
+
+          {actionLoading ? <CircularLoading noBorder={true} /> : ''}
         </CardHeader>
 
         <CardContent>
@@ -130,7 +133,7 @@ export function AppointmentsList({ times }: AppointmentsListProps) {
             {fetchloading ? (
               <div className="flex flex-row items-center">
                 <p className="text-lg mr-2">Carregando agenda</p>
-                <CircularLoading borderColor="emerald-800" />
+                <CircularLoading noBorder={true} />
               </div>
             ) : (
               times.map((slot) => {
