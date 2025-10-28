@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Footer } from './_components/footer'
 import Header from './_components/header'
 import Hero from './_components/hero'
@@ -15,7 +16,9 @@ export default async function Home() {
       <div>
         <Hero />
 
-        <Professionals professionals={professinals} />
+        <Suspense>
+          <Professionals professionals={professinals} />
+        </Suspense>
 
         <Footer />
       </div>

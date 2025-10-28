@@ -3,9 +3,10 @@ import getSession from '@/lib/getSession'
 import { Calendar } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
+import Appointments from './_components/appointments/appointments'
 import { ButtonCopyLink } from './_components/button-copy-link'
 import { Reminders } from './_components/reminder/reminders'
-import Appointments from './_components/appointments/appointments'
 
 export default async function Dashboard() {
   const session = await getSession()
@@ -26,9 +27,11 @@ export default async function Dashboard() {
       </div>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
-        <Appointments userId={session.user?.id}  />
+        <Appointments userId={session.user?.id} />
 
-        <Reminders userId={session.user?.id} />
+        <Suspense>
+          <Reminders userId={session.user?.id} />
+        </Suspense>
       </section>
     </main>
   )
