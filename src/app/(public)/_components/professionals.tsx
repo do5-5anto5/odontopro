@@ -38,7 +38,7 @@ export function Professionals({ professionals }: ProfessionalsProps) {
                     <div>
                       <h3 className="font-semibold">{clinic.name}</h3>
                       <p className="text-sm text-gray-500">
-                        {clinic.adress ?? 'Endereço não informado'}
+                        {clinic.adress ? clinic.adress : 'Endereço não informado'}
                       </p>
                     </div>
 
