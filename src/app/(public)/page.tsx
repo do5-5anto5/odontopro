@@ -1,8 +1,11 @@
+import { Suspense } from 'react'
 import { Footer } from './_components/footer'
 import Header from './_components/header'
 import Hero from './_components/hero'
 import { Professionals } from './_components/professionals'
 import { getProfessionals } from './_data-access/get-professionals'
+
+export const revalidate = 120
 
 export default async function Home() {
   const professinals = await getProfessionals()
@@ -13,7 +16,9 @@ export default async function Home() {
       <div>
         <Hero />
 
-        <Professionals professionals={professinals} />
+        <Suspense>
+          <Professionals professionals={professinals} />
+        </Suspense>
 
         <Footer />
       </div>
