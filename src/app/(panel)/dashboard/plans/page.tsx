@@ -1,7 +1,15 @@
-export default function Plan() {
+import getSession from "@/lib/getSession";
+import { redirect } from "next/navigation";
+import { GridPlans } from "./_components/grid-subscription";
+
+export default async function Plan() {
+  const session = await getSession()
+  
+    if (!session) {redirect('/')}
+      
   return (
-    <section>
-      <h1>Página planos para assinatura</h1>
-    </section>
+    <div>
+      <GridPlans/>
+    </div>
   );
 }
