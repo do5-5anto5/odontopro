@@ -1,4 +1,4 @@
-import { loadStripe } from './../../../node_modules/@stripe/stripe-js/dist/pure.d';
+import { loadStripe } from '@stripe/stripe-js';
 
 
 export async function getStripeJs() {
