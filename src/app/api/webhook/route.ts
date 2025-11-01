@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { stripe } from '@/utils/stripe/stripe'
+import { stripe } from '@/lib/stripe'
 
 /**
  * Handles a Stripe webhook request.

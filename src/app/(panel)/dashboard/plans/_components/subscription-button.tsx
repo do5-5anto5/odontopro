@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Plan } from '@/generated/prisma/client'
 import { createSubscription } from '../_actions/create-subscription'
 import { toast } from 'sonner'
-import {getStripeJs} from '@/utils/stripe/stripe-js'
+import {getStripeJs} from '@/lib/stripe-js'
 
 interface SubscriptionButtonProps {
   type: Plan
