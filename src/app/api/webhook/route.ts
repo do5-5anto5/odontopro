@@ -1,6 +1,9 @@
+import { Plan } from '@/generated/prisma/client'
+import { stripe } from '@/lib/stripe'
+import { manageSubscription } from '@/services/manage-subscriptions'
+import { revalidatePath } from 'next/cache'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { stripe } from '@/lib/stripe'
 
 /**
  * Handles a Stripe webhook request.
@@ -17,10 +20,6 @@ import { stripe } from '@/lib/stripe'
  * In case of an unhandled event type, this function will log a message to the console.
  */
 export const POST = async (request: Request) => {
-
-    console.log('🔑 Webhook secret:', process.env.STRIPE_WEBHOOK_SECRET_KEY ? 'EXISTS ✅' : 'MISSING ❌')
-  
-    
   const signature = request.headers.get('stripe-signature')
 
   if (!signature) return NextResponse.error()
@@ -32,7 +31,7 @@ export const POST = async (request: Request) => {
   const event = stripe.webhooks.constructEvent(
     text,
     signature,
-    process.env.STRIPE_SECRET_WEBHOOK_KEY as string
+    process.env.STRIPE_SECRET_WEBHOOK as string
   )
 
   switch (event.type) {
@@ -41,26 +40,54 @@ export const POST = async (request: Request) => {
 
       console.log('subscription deleted', payment)
 
-      //TODO delete subscrition at database
+      await manageSubscription(
+        payment.id,
+        payment.customer.toString(),
+        false,
+        true
+      )
+
       break
+
     case 'customer.subscription.updated':
       const paymentIntent = event.data.object as Stripe.Subscription
 
       console.log('subscription updated', paymentIntent)
 
-      //TODO update subscrition at database
+      await manageSubscription(
+        paymentIntent.id,
+        paymentIntent.customer.toString(),
+        false
+      )
+
       break
+
     case 'checkout.session.completed':
       const checkoutSession = event.data.object as Stripe.Checkout.Session
 
+      const type = checkoutSession?.metadata?.type
+        ? checkoutSession?.metadata?.type
+        : 'BASIC'
+
       console.log('subscription created', checkoutSession)
 
-      //TODO create new active subscription to user
+      if (checkoutSession.subscription && checkoutSession.customer) {
+        await manageSubscription(
+          checkoutSession.subscription.toString(),
+          checkoutSession.customer.toString(),
+          true,
+          false,
+          type as Plan
+        )
+      }
+
       break
 
     default:
       console.log('Unhandled event type: ', event.type)
   }
+
+  revalidatePath('/dashboard/plans')
 
   return NextResponse.json({ received: true })
 }
