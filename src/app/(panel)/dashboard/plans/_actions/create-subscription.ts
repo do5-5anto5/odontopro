@@ -2,7 +2,7 @@
 
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
-import { stripe } from '@/utils/stripe/stripe'
+import { stripe } from '@/lib/stripe'
 import { Plan } from '@/generated/prisma/client'
 
 interface SubscriptionProps {
