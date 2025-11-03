@@ -11,21 +11,13 @@ import {
 } from '@/components/ui/card'
 import { subscriptionPlans } from '@/utils/plans'
 import { Button } from '@/components/ui/button'
+import { createPortalCustomer } from '../_actions/create-portal-customer'
+import { toast } from 'sonner'
 
 interface SubscriptionDetailsProps {
   subscription: Subscription
 }
 
-/*************  ✨ Windsurf Command ⭐  *************/
-/**
- * Component to render a card with the user's subscription details.
- *
- * @param {SubscriptionDetailsProps} props - The component props.
- * @param {Subscription} props.subscription - The user's subscription.
- *
- * @returns {JSX.Element} The rendered component.
- */
-/*******  a7c03b98-14f6-4e1f-aee4-1f7296c92a19  *******/
 export function SubscriptionDetails({
   subscription,
 }: SubscriptionDetailsProps) {
@@ -33,9 +25,16 @@ export function SubscriptionDetails({
     (plan) => plan.id === subscription.plan
   )
 
-    async function handleManageSubscription() {
-        console.log('test')
+  async function handleManageSubscription() {
+    const portal = await createPortalCustomer()
+
+    if (portal.error) {
+      toast.error('Ocorreu um erro ao criar o portal de assinatura')
+      return
     }
+
+    window.location.href = portal.sessionId!
+  }
 
   return (
     <Card className="w-full mx-auto">
@@ -55,7 +54,7 @@ export function SubscriptionDetails({
           </div>
         </div>
 
-        <ul className='list-disc list-inside space-y-2'>
+        <ul className="list-disc list-inside space-y-2">
           {subscriptionInfo &&
             subscriptionInfo.features.map((feature) => (
               <li key={feature}>{feature}</li>
@@ -64,9 +63,7 @@ export function SubscriptionDetails({
       </CardContent>
 
       <CardFooter>
-        <Button
-        onClick={handleManageSubscription}
-        >Gerenciar assinatura</Button>
+        <Button onClick={handleManageSubscription}>Gerenciar assinatura</Button>
       </CardFooter>
     </Card>
   )

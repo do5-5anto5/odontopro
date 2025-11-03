@@ -2,7 +2,7 @@ import getSession from '@/lib/getSession'
 import { redirect } from 'next/navigation'
 import { GridPlans } from './_components/grid-subscription'
 import { getSubscription } from './_data-acess/get-subscriptions'
-import { SubscriptionDetails } from './_components/subscription-card'
+import { SubscriptionDetails } from './_components/subscription-details'
 
 export default async function Plan() {
   const session = await getSession()
