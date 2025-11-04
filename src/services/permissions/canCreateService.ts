@@ -8,7 +8,6 @@ import { PLANS } from '@/utils/plans'
 import { checkSubscriptionExpired } from './checkSubscriptionExpired'
 import { ResultPermissionProps } from './planPermissions'
 
-
 /**
  * Checks if the user has permission to create a new service.
  * If the user has an active subscription, it will check if the user has
@@ -34,9 +33,9 @@ export async function canCreateSerivce(
       return {
         hasPermission:
           planLimits.maxServices === null ||
-          serviceCount < planLimits.maxServices,
-        planId: 'EXPIRED',
-        expired: true,
+          serviceCount <= planLimits.maxServices,
+        planId: subscription.plan,
+        expired: false,
         plan: PLANS[subscription.plan],
       }
     }
