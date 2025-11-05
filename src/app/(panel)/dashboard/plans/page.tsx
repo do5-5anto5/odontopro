@@ -11,8 +11,6 @@ export default async function Plan() {
 
   const subscription = await getSubscription({ userId: session?.user?.id })
 
-  console.log('sub', subscription)
-
   return (
     <div>
       {subscription?.status !== 'active' && <GridPlans />}

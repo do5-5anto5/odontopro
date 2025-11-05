@@ -6,9 +6,10 @@ import prisma from '@/lib/prisma'
 import { canCreateSerivce } from './canCreateService'
 
 export type PLAN_PROP = 'BASIC' | 'PROFESSIONAL' | 'TRIAL' | 'EXPIRED'
+type TypeCheck = 'service'
 
 interface CanPermissionProps {
-  type: string
+  type: TypeCheck
 }
 
 export interface ResultPermissionProps {
@@ -46,6 +47,8 @@ export async function planPermissions({
     case 'service':
 
      const permission = await canCreateSerivce(subscription, session)
+
+     console.log(permission)
 
      return permission
      
