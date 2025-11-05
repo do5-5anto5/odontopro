@@ -1,3 +1,4 @@
+import { planPermissions } from '@/services/permissions/planPermissions'
 import { getAllServices } from '../_data-access/get-all-services'
 import { ServicesList } from './services-list'
 
@@ -7,9 +8,7 @@ interface ServicesContentProps {
 
 export async function ServicesContent({ userId }: ServicesContentProps) {
   const services = await getAllServices({ userId: userId })
-  return (
-    <div>
-      <ServicesList services={services.data || []} />
-    </div>
-  )
+  const permission = await planPermissions({ type: 'service' })
+
+  return <ServicesList services={services.data || []} permission={permission} />
 }
