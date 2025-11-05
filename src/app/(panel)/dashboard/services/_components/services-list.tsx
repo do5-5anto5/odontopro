@@ -12,17 +12,24 @@ import { toast } from 'sonner'
 import { deleteService } from '../_actions/delete-service'
 import { useRouter } from 'next/navigation'
 import { useLoading } from '@/utils/loading'
+import { ResultPermissionProps } from '@/services/permissions/planPermissions'
+import Link from 'next/link'
 
 interface ServicesListProps {
   services: Service[]
+  permission: ResultPermissionProps
 }
 
-export function ServicesList({ services }: ServicesListProps) {
+export function ServicesList({ services, permission }: ServicesListProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const router = useRouter()
   const { loading, withLoading } = useLoading()
 
   const [updateService, setUpdateService] = useState<null | Service>(null)
+
+  const servicesList = permission.hasPermission
+    ? services
+    : services.slice(0, 5)
 
   async function handleDeleteService(id: string) {
     withLoading(async () => {
@@ -60,14 +67,22 @@ export function ServicesList({ services }: ServicesListProps) {
             <CardTitle className="text-xl md:text-2xl font-bold">
               Serviços
             </CardTitle>
+            {permission.hasPermission && (
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </DialogTrigger>
+            )}
 
-            {/* use 'asChild' property to avoid hydration error */}
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4" />
-              </Button>
-            </DialogTrigger>
-
+            {!permission.hasPermission && (
+              <Link
+                href="/dashboard/plans"
+                className="text-red-400 font font-semibold"
+              >
+                Limite de serviços atingido
+              </Link>
+            )}
             <DialogContent
               onInteractOutside={(e) => {
                 e.preventDefault()
@@ -103,7 +118,7 @@ export function ServicesList({ services }: ServicesListProps) {
 
           <CardContent>
             <section className="space-y-4 mt-5  ">
-              {services.map((service) => (
+              {servicesList.map((service) => (
                 <article
                   key={service.id}
                   className="flex items-center justify-between"
