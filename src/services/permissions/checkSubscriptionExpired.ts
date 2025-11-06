@@ -3,8 +3,7 @@
 import { addDays, isAfter } from 'date-fns'
 import { Session } from 'next-auth'
 import { ResultPermissionProps } from './planPermissions'
-
-const TRIAL_DAYS = 3
+import { TRIAL_DAYS } from './trial-limits'
 
 /**
  * Checks if the user's trial period has expired.

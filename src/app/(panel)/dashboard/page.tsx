@@ -7,11 +7,22 @@ import { Suspense } from 'react'
 import Appointments from './_components/appointments/appointments'
 import { ButtonCopyLink } from './_components/button-copy-link'
 import { Reminders } from './_components/reminder/reminders'
+import { checkSubscription } from '@/services/permissions/checkSubscription'
+import { LabelSubscription } from '@/components/ui/label-subscription'
 
+/**
+ * Dashboard page for the user.
+ *
+ * This page will display a button to create a new appointment, a button to copy the link to the user's clinic, and a label indicating if the user's subscription has expired.
+ *
+ * If the user's subscription has not expired, it will also display the user's appointments and reminders.
+ */
 export default async function Dashboard() {
   const session = await getSession()
 
   if (!session) redirect('/')
+
+  const subscription = await checkSubscription(session.user?.id)
 
   return (
     <main>
@@ -26,13 +37,25 @@ export default async function Dashboard() {
         <ButtonCopyLink userId={session.user?.id} />
       </div>
 
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
-        <Appointments userId={session.user?.id} />
+      {subscription?.subscriptionStatus === 'EXPIRED' && (
+        <LabelSubscription expired={true} />
+      )}
 
-        <Suspense>
-          <Reminders userId={session.user?.id} />
-        </Suspense>
-      </section>
+      {subscription?.subscriptionStatus === 'TRIAL' && (
+        <div className='bg-green-500 text-white text-sm md:text-base px-3 py-1 m-2 rounded-md'>
+          <p>{subscription.message}</p>
+        </div>
+      )}
+
+      {subscription?.subscriptionStatus !== 'EXPIRED' && (
+        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-4">
+          <Appointments userId={session.user?.id} />
+
+          <Suspense>
+            <Reminders userId={session.user?.id} />
+          </Suspense>
+        </section>
+      )}
     </main>
   )
 }
