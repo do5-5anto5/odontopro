@@ -10,6 +10,13 @@ import { Reminders } from './_components/reminder/reminders'
 import { checkSubscription } from '@/services/permissions/checkSubscription'
 import { LabelSubscription } from '@/components/ui/label-subscription'
 
+/**
+ * Dashboard page for the user.
+ *
+ * This page will display a button to create a new appointment, a button to copy the link to the user's clinic, and a label indicating if the user's subscription has expired.
+ *
+ * If the user's subscription has not expired, it will also display the user's appointments and reminders.
+ */
 export default async function Dashboard() {
   const session = await getSession()
 
