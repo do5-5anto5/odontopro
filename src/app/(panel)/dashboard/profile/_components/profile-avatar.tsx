@@ -12,17 +12,6 @@ interface AvatarProfileProps {
   userId: string
 }
 
-/*************  ✨ Windsurf Command ⭐  *************/
-/**
- * Componente que renderiza um avatar com a opção de upload de imagem
- * 
- * @param {AvatarProfileProps} props - Props do componente
- * @param {string | null} props.avatarUrl - URL da imagem do avatar
- * @param {string} props.userId - ID do usuário
- * 
- * @returns {JSX.Element} - Elemento JSX do componente
- */
-/*******  d83edfb1-e899-4d4e-bf4d-f513a72a1429  *******/
 export function AvatarProfile({ avatarUrl, userId }: AvatarProfileProps) {
   const [previewImage, setPreviewImage] = useState(avatarUrl)
 
@@ -34,13 +23,52 @@ export function AvatarProfile({ avatarUrl, userId }: AvatarProfileProps) {
         const image = event.target.files[0]
 
         if (image.type !== 'image/jpeg' && image.type !== 'image.png') {
-            toast.error('Formato de imagem inválido.') 
-            return
+          toast.error('Formato de imagem inválido.')
+          return
+        }
+
+        const newFilename = `${userId}`
+        const newFile = new File([image], newFilename, { type: image.type })
+
+        const urlImage = await uploadImage(newFile)
+
+        if (urlImage) {
+          setPreviewImage(urlImage)
         }
       }
-
-      //TODO integrar com o bano de dados
     })
+  }
+
+  async function uploadImage(image: File): Promise<string | null> {
+    try {
+      toast('Enviando sua imagem...')
+
+      const formData = new FormData()
+
+      formData.append('file', image)
+      formData.append('userId', userId)
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_URL}/api/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        return null
+      }
+
+      toast('Imagem alterada com sucesso!')
+
+      return data.secure_url as string
+    } catch (error) {
+      console.log(error)
+      return null
+    }
   }
 
   return (
