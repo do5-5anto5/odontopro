@@ -38,9 +38,9 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import imgTest from '../../../../../../public/foto1.png'
 import { updateProfile } from '../_actions/update-profile'
 import { ProfileFormData, useProfileForm } from './profile-form'
+import { AvatarProfile } from './profile-avatar'
 
 type UserWithSubscription = Prisma.UserGetPayload<{
   include: {
@@ -55,13 +55,12 @@ interface ProfileContentProps {
 export function ProfileContent({ user }: ProfileContentProps) {
   const router = useRouter()
 
-
   const [selectedHours, setSelectedHours] = useState<string[]>(user.times ?? [])
-  
+
   const { loading, withLoading } = useLoading()
-  
+
   const formattedPhoneNumber = formatPhone(user.phone || '')
-  
+
   const form = useProfileForm({
     name: user.name,
     adress: user.adress,
@@ -69,9 +68,9 @@ export function ProfileContent({ user }: ProfileContentProps) {
     status: user.status,
     timezone: user.timezone,
   })
-  
-  const {update} = useSession()
-  
+
+  const { update } = useSession()
+
   function generateTimeSlots(): string[] {
     const hours: string[] = []
 
@@ -135,8 +134,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
   async function handleLogout() {
     await signOut()
     await update()
-    router.replace("/")
-
+    router.replace('/')
   }
 
   return (
@@ -149,14 +147,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex justify-center">
-                <div className="bg-gray-200 relative h-40 w-40 rounded-full overflow-hidden">
-                  <Image
-                    src={user.image ? user.image : imgTest}
-                    alt="Foto da clínica"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+                <AvatarProfile avatarUrl={user.image} userId={user.id} />
               </div>
 
               <div className="space-y-4">
@@ -353,20 +344,22 @@ export function ProfileContent({ user }: ProfileContentProps) {
               >
                 {loading ? (
                   <div className="flex flex-row items-center justify-center gap-2">
-                    <CircularLoading borderColor="white" />Salvando
+                    <CircularLoading borderColor="white" />
+                    Salvando
                   </div>
                 ) : (
                   <>Salvar alterações</>
                 )}
-                
               </Button>
             </CardContent>
           </Card>
         </form>
       </Form>
 
-      <section className='mt-4'>
-        <Button variant='destructive' onClick={handleLogout}>Sair da conta</Button>
+      <section className="mt-4">
+        <Button variant="destructive" onClick={handleLogout}>
+          Sair da conta
+        </Button>
       </section>
     </div>
   )
