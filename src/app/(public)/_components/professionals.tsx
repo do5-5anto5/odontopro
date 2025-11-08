@@ -1,12 +1,17 @@
 import { Card, CardContent } from '@/components/ui/card'
-import Image from 'next/image'
-import photoImg from '../../../../public/foto1.png'
-import Link from 'next/link'
+import { Prisma } from '@/generated/prisma/client'
 import { ArrowRight } from 'lucide-react'
-import { User } from '@/generated/prisma/client'
+import Image from 'next/image'
+import Link from 'next/link'
+import photoImg from '../../../../public/foto1.png'
+import { PremiumBadge } from './premium-badge'
+
+type UserWithSubscription = Prisma.UserGetPayload<{
+  include: { subscription: true }
+}>
 
 interface ProfessionalsProps {
-  professionals: User[]
+  professionals: UserWithSubscription[]
 }
 
 export function Professionals({ professionals }: ProfessionalsProps) {
@@ -31,7 +36,12 @@ export function Professionals({ professionals }: ProfessionalsProps) {
                       alt="Imagem de perfil da clínica"
                       fill
                       className="object-cover"
-                    ></Image>
+                    />
+
+                    {clinic?.subscription?.status === 'active' &&
+                      clinic?.subscription?.plan === 'PROFESSIONAL' && (
+                        <PremiumBadge />
+                      )}
                   </div>
                 </div>
 
