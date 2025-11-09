@@ -27,6 +27,8 @@ const eslintConfig = [
       '**/dist/**',
       '**/*.config.js',
       'next-env.d.ts',
+      'src/generated/**', // Adiciona isso
+      '**/generated/**',
     ],
   },
 ]
